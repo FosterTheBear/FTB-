@@ -1,0 +1,3 @@
+repo=https://github.com/fastrepl/anarlog
+commit=428903e3c73d840f4a5e3501fce0037fd050abfd
+license=MIT (community app). enterprise/ is commercially licensed and must not be built or shipped.

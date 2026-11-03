@@ -1,0 +1,134 @@
+diff --git a/apps/desktop/src-tauri/src/lib.rs b/apps/desktop/src-tauri/src/lib.rs
+index 37f167e..6f3d531 100644
+--- a/apps/desktop/src-tauri/src/lib.rs
++++ b/apps/desktop/src-tauri/src/lib.rs
+@@ -183,11 +183,8 @@ pub fn main() {
+         });
+ 
+     let sentry_client = {
+-        let dsn = if std::env::var_os("ANARLOG_DISABLE_SENTRY").is_some() {
+-            None
+-        } else {
+-            option_env!("SENTRY_DSN")
+-        };
++        // MyNotes: crash reporting is permanently disabled. No DSN is ever read.
++        let dsn: Option<&str> = None;
+ 
+         if let Some(dsn) = dsn {
+             let release =
+diff --git a/apps/desktop/src-tauri/tauri.conf.nightly-macos.json b/apps/desktop/src-tauri/tauri.conf.nightly-macos.json
+index 973e738..23d2880 100644
+--- a/apps/desktop/src-tauri/tauri.conf.nightly-macos.json
++++ b/apps/desktop/src-tauri/tauri.conf.nightly-macos.json
+@@ -1,9 +1,5 @@
+ {
+   "plugins": {
+-    "updater": {
+-      "endpoints": [
+-        "https://desktop.anarlog.so/update/{{target}}-{{arch}}/{{current_version}}?channel=nightly"
+-      ]
+-    }
++    "updater": {}
+   }
+ }
+diff --git a/apps/desktop/src-tauri/tauri.conf.nightly.json b/apps/desktop/src-tauri/tauri.conf.nightly.json
+index d95cf14..b1b161a 100644
+--- a/apps/desktop/src-tauri/tauri.conf.nightly.json
++++ b/apps/desktop/src-tauri/tauri.conf.nightly.json
+@@ -13,10 +13,7 @@
+       }
+     },
+     "updater": {
+-      "active": true,
+-      "endpoints": [
+-        "https://desktop.anarlog.so/update/{{target}}-{{arch}}-{{bundle_type}}/{{current_version}}?channel=nightly"
+-      ]
++      "active": false
+     }
+   },
+   "bundle": {
+diff --git a/apps/desktop/src-tauri/tauri.conf.stable-macos.json b/apps/desktop/src-tauri/tauri.conf.stable-macos.json
+index ad872bb..23d2880 100644
+--- a/apps/desktop/src-tauri/tauri.conf.stable-macos.json
++++ b/apps/desktop/src-tauri/tauri.conf.stable-macos.json
+@@ -1,9 +1,5 @@
+ {
+   "plugins": {
+-    "updater": {
+-      "endpoints": [
+-        "https://desktop.anarlog.so/update/{{target}}-{{arch}}/{{current_version}}?channel=stable"
+-      ]
+-    }
++    "updater": {}
+   }
+ }
+diff --git a/apps/desktop/src-tauri/tauri.conf.stable.json b/apps/desktop/src-tauri/tauri.conf.stable.json
+index 930563d..a6099a1 100644
+--- a/apps/desktop/src-tauri/tauri.conf.stable.json
++++ b/apps/desktop/src-tauri/tauri.conf.stable.json
+@@ -13,9 +13,15 @@
+     ],
+     "linux": {
+       "deb": {
+-        "provides": ["char"],
+-        "conflicts": ["char"],
+-        "replaces": ["char"]
++        "provides": [
++          "char"
++        ],
++        "conflicts": [
++          "char"
++        ],
++        "replaces": [
++          "char"
++        ]
+       }
+     },
+     "macOS": {
+@@ -31,13 +37,15 @@
+   },
+   "plugins": {
+     "deep-link": {
+-      "desktop": { "schemes": ["anarlog", "hyprnote"] }
++      "desktop": {
++        "schemes": [
++          "anarlog",
++          "hyprnote"
++        ]
++      }
+     },
+     "updater": {
+-      "active": true,
+-      "endpoints": [
+-        "https://desktop.anarlog.so/update/{{target}}-{{arch}}-{{bundle_type}}/{{current_version}}?channel=stable"
+-      ]
++      "active": false
+     }
+   }
+ }
+diff --git a/plugins/analytics/src/lib.rs b/plugins/analytics/src/lib.rs
+index 18b976a..97db58b 100644
+--- a/plugins/analytics/src/lib.rs
++++ b/plugins/analytics/src/lib.rs
+@@ -58,19 +58,8 @@ pub fn init<R: tauri::Runtime>() -> tauri::plugin::TauriPlugin<R> {
+     tauri::plugin::Builder::new(PLUGIN_NAME)
+         .invoke_handler(specta_builder.invoke_handler())
+         .setup(|app, _api| {
+-            let posthog_key = {
+-                #[cfg(not(debug_assertions))]
+-                {
+-                    let v = env!("POSTHOG_API_KEY");
+-                    assert!(v.starts_with("phc_"));
+-                    Some(v)
+-                }
+-
+-                #[cfg(debug_assertions)]
+-                {
+-                    option_env!("POSTHOG_API_KEY")
+-                }
+-            };
++            // MyNotes: analytics are permanently disabled. No key is ever read.
++            let posthog_key: Option<&str> = None;
+ 
+             let client = {
+                 let mut builder = anlg_analytics::AnalyticsClientBuilder::default();
